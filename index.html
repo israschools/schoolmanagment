@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Isra School Management Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0F2A3D;
+    --navy-light:#163A52;
+    --teal:#1B5E63;
+    --gold:#C9952C;
+    --gold-light:#E4BB6A;
+    --bg:#F6F4EF;
+    --card:#FFFFFF;
+    --ink:#1A2530;
+    --ink-soft:#5C6B77;
+    --line:#E5E1D8;
+    --success:#2F8F5B;
+    --danger:#C0392B;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);}
+  h1,h2,h3,.brand{font-family:'Outfit',sans-serif;}
+
+  /* ---- Login Screen ---- */
+  #loginScreen{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(160deg,var(--navy) 0%, var(--navy-light) 55%, var(--teal) 130%);
+    padding:20px;
+  }
+  .login-card{
+    background:var(--card);width:100%;max-width:380px;border-radius:16px;
+    padding:40px 32px 32px;box-shadow:0 30px 60px rgba(0,0,0,.35);position:relative;overflow:hidden;
+  }
+  .login-card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:5px;
+    background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));
+  }
+  .arch{width:56px;height:56px;margin:0 auto 18px;border-radius:50% 50% 6px 6px / 60% 60% 6px 6px;
+    background:linear-gradient(135deg,var(--navy),var(--teal));display:flex;align-items:center;justify-content:center;
+    color:var(--gold-light);font-weight:700;font-size:20px;font-family:'Outfit',sans-serif;}
+  .login-card h1{font-size:21px;text-align:center;margin:0 0 2px;color:var(--navy);font-weight:700;}
+  .login-card p.sub{text-align:center;color:var(--ink-soft);font-size:13px;margin:0 0 26px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+  .field input{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;transition:border .15s;}
+  .field input:focus{outline:none;border-color:var(--teal);}
+  .btn{
+    width:100%;padding:12px;border:none;border-radius:8px;background:var(--navy);color:#fff;
+    font-weight:600;font-size:14.5px;cursor:pointer;transition:background .15s;font-family:inherit;
+  }
+  .btn:hover{background:var(--navy-light);}
+  .btn.gold{background:var(--gold);color:var(--navy);}
+  .btn.gold:hover{background:var(--gold-light);}
+  .btn.danger{background:var(--danger);}
+  .btn.outline{background:transparent;border:1.5px solid var(--line);color:var(--ink);}
+  .btn-sm{padding:7px 12px;font-size:13px;border-radius:6px;width:auto;}
+  #loginError{color:var(--danger);font-size:13px;text-align:center;margin-top:14px;display:none;}
+
+  /* ---- App Shell ---- */
+  #app{display:none;min-height:100vh;}
+  .shell{display:flex;min-height:100vh;}
+  .sidebar{
+    width:230px;background:var(--navy);color:#fff;flex-shrink:0;display:flex;flex-direction:column;
+    padding:22px 0;
+  }
+  .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 22px 22px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:14px;}
+  .sidebar .brand .arch{width:38px;height:38px;font-size:14px;}
+  .sidebar .brand span{font-weight:600;font-size:15px;line-height:1.25;}
+  .nav-item{
+    display:flex;align-items:center;gap:11px;padding:12px 22px;color:rgba(255,255,255,.75);
+    cursor:pointer;font-size:14px;font-weight:500;transition:.15s;border-left:3px solid transparent;
+  }
+  .nav-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+  .nav-item.active{background:rgba(255,255,255,.09);color:var(--gold-light);border-left-color:var(--gold);}
+  .nav-icon{width:18px;text-align:center;}
+  .sidebar-bottom{margin-top:auto;padding:14px 22px 0;border-top:1px solid rgba(255,255,255,.1);}
+
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .topbar{
+    background:#fff;border-bottom:1px solid var(--line);padding:16px 28px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .topbar h2{margin:0;font-size:19px;color:var(--navy);}
+  .user-chip{display:flex;align-items:center;gap:10px;}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
+  .role-badge{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+    padding:3px 9px;border-radius:20px;background:#EAF3F1;color:var(--teal);}
+
+  .content{padding:26px 28px;overflow-y:auto;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:20px;}
+  .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .card-head h3{margin:0;font-size:16px;color:var(--navy);}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:left;padding:10px 12px;color:var(--ink-soft);font-weight:600;font-size:12px;
+    text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid var(--line);}
+  td{padding:11px 12px;border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;}
+  .pill.active{background:#E7F5EC;color:var(--success);}
+  .pill.inactive{background:#FBE9E7;color:var(--danger);}
+  .pill.role{background:#EFF1F4;color:var(--navy);}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:22px;}
+  .stat-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;}
+  .stat-card .num{font-family:'Outfit',sans-serif;font-size:28px;font-weight:700;color:var(--navy);}
+  .stat-card .lbl{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(15,42,61,.55);z-index:50;align-items:center;justify-content:center;padding:20px;}
+  .modal{background:#fff;border-radius:14px;padding:26px;width:100%;max-width:440px;max-height:88vh;overflow-y:auto;}
+  .modal h3{margin:0 0 18px;color:var(--navy);}
+  .modal .field input,.modal .field select{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:7px;font-size:13.5px;font-family:inherit;}
+  .modal-actions{display:flex;gap:10px;margin-top:8px;}
+  .modal-actions .btn{width:auto;flex:1;}
+  .section-label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+    color:var(--gold);margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line);}
+  .section-label:first-of-type{margin-top:0;}
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px;}
+  .field-grid .field{margin-bottom:0;}
+  .profile-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;}
+  .profile-row:last-child{border-bottom:none;}
+  .profile-row .k{color:var(--ink-soft);}
+  .profile-row .v{font-weight:600;color:var(--ink);text-align:right;}
+
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:13px 20px;
+    border-radius:8px;font-size:13.5px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:99;display:none;}
+  .toast.error{background:var(--danger);}
+  .toast.success{background:var(--success);}
+
+  .empty-state{text-align:center;padding:40px 20px;color:var(--ink-soft);font-size:13.5px;}
+  .loading{text-align:center;padding:30px;color:var(--ink-soft);font-size:13.5px;}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="arch">IS</div>
+    <h1>Isra School Management</h1>
+    <p class="sub">Employee Portal — please sign in</p>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="you@isra.edu.pk">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••">
+    </div>
+    <button class="btn gold" onclick="doLogin()">Sign In</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div id="app">
+  <div class="shell">
+    <div class="sidebar">
+      <div class="brand">
+        <div class="arch">IS</div>
+        <span>Isra School<br>Management</span>
+      </div>
+      <div class="nav-item active" data-view="dashboard" onclick="switchView('dashboard')">
+        <span class="nav-icon">▦</span> Dashboard
+      </div>
+      <div class="nav-item" data-view="employees" onclick="switchView('employees')">
+        <span class="nav-icon">👤</span> Employees
+      </div>
+      <div class="nav-item" data-view="campuses" id="navCampuses" onclick="switchView('campuses')">
+        <span class="nav-icon">🏫</span> Campuses
+      </div>
+      <div class="nav-item" data-view="profile" onclick="switchView('profile')">
+        <span class="nav-icon">⚙</span> My Profile
+      </div>
+      <div class="sidebar-bottom">
+        <div class="nav-item" onclick="doLogout()" style="padding-left:0;">
+          <span class="nav-icon">⏻</span> Logout
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="topbar">
+        <h2 id="viewTitle">Dashboard</h2>
+        <div class="user-chip">
+          <div>
+            <div style="font-weight:600;font-size:13.5px;text-align:right;" id="topUserName">—</div>
+            <div style="text-align:right;"><span class="role-badge" id="topUserRole">—</span></div>
+          </div>
+          <div class="avatar" id="topAvatar">--</div>
+        </div>
+      </div>
+      <div class="content" id="content"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ MODALS ============ -->
+<div class="modal-bg" id="employeeModalBg">
+  <div class="modal" style="max-width:560px;">
+    <h3 id="employeeModalTitle">Add Employee</h3>
+
+    <div class="section-label">Personal Information</div>
+    <div class="field-grid">
+      <div class="field"><label>Full Name</label><input id="emName"></div>
+      <div class="field"><label>Father / Husband Name</label><input id="emFatherHusbandName"></div>
+      <div class="field"><label>Date of Birth</label><input id="emDOB" type="date"></div>
+      <div class="field"><label>Gender</label>
+        <select id="emGender"><option value="">— Select —</option><option>Male</option><option>Female</option></select>
+      </div>
+      <div class="field"><label>CNIC</label><input id="emCNIC" placeholder="xxxxx-xxxxxxx-x"></div>
+      <div class="field"><label>Blood Group</label>
+        <select id="emBloodGroup"><option value="">— Select —</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+        </select>
+      </div>
+      <div class="field" style="grid-column:1/-1;"><label>Permanent Address</label><input id="emPermanentAddress"></div>
+      <div class="field" style="grid-column:1/-1;"><label>Qualification</label><input id="emQualification"></div>
+    </div>
+
+    <div class="section-label">Contact</div>
+    <div class="field-grid">
+      <div class="field"><label>Email</label><input id="emEmail" type="email"></div>
+      <div class="field"><label>Phone</label><input id="emPhone"></div>
+    </div>
+
+    <div class="section-label">Emergency Contact</div>
+    <div class="field-grid">
+      <div class="field"><label>Name</label><input id="emEmergencyContactName"></div>
+      <div class="field"><label>Phone</label><input id="emEmergencyContactPhone"></div>
+    </div>
+
+    <div class="section-label">Bank Details (for Salary)</div>
+    <div class="field-grid">
+      <div class="field"><label>Bank Name</label><input id="emBankName"></div>
+      <div class="field"><label>Account No.</label><input id="emBankAccountNo"></div>
+    </div>
+
+    <div class="section-label">Employment</div>
+    <div class="field-grid">
+      <div class="field"><label>Designation</label><input id="emDesignation"></div>
+      <div class="field"><label>Joining Date</label><input id="emJoiningDate" type="date"></div>
+      <div class="field"><label>Role</label>
+        <select id="emRole">
+          <option value="Teacher">Teacher</option>
+          <option value="Principal">Principal</option>
+          <option value="Director">Director</option>
+          <option value="SuperAdmin">SuperAdmin</option>
+        </select>
+      </div>
+      <div class="field"><label>Campus</label><select id="emCampus"></select></div>
+    </div>
+
+    <input type="hidden" id="emEmployeeID">
+    <div class="modal-actions">
+      <button class="btn outline" onclick="closeModal('employeeModalBg')">Cancel</button>
+      <button class="btn gold" onclick="saveEmployee()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="viewProfileModalBg">
+  <div class="modal" style="max-width:560px;">
+    <h3 id="viewProfileName">Employee Profile</h3>
+    <div id="viewProfileBody"></div>
+    <div class="modal-actions">
+      <button class="btn outline" onclick="closeModal('viewProfileModalBg')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="campusModalBg">
+  <div class="modal">
+    <h3 id="campusModalTitle">Add Campus</h3>
+    <div class="field"><label>Campus Name</label><input id="cmName"></div>
+    <div class="field"><label>Campus Type</label><input id="cmType" placeholder="e.g. School / University / Madrasa"></div>
+    <div class="field"><label>Address</label><input id="cmAddress"></div>
+    <div class="field"><label>Latitude</label><input id="cmLat" type="number" step="any"></div>
+    <div class="field"><label>Longitude</label><input id="cmLng" type="number" step="any"></div>
+    <div class="field"><label>Geo-fence Radius (meters)</label><input id="cmRadius" type="number" value="100"></div>
+    <input type="hidden" id="cmCampusID">
+    <div class="modal-actions">
+      <button class="btn outline" onclick="closeModal('campusModalBg')">Cancel</button>
+      <button class="btn gold" onclick="saveCampus()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+/* ================= CONFIG ================= */
+const API_URL = CONFIG.API_URL;
+
+let TOKEN = localStorage.getItem('isra_token') || null;
+let ME = null;
+let CAMPUSES_CACHE = [];
+
+/* ================= API CALL ================= */
+function api(action, data) {
+  const payload = Object.assign({ action, token: TOKEN }, data || {});
+  return fetch(API_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }).then(r => r.json());
+}
+
+/* ================= TOAST ================= */
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || '');
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3200);
+}
+
+/* ================= LOGIN ================= */
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+
+  if (!email || !password) {
+    errEl.textContent = 'Email aur password dono bharein.';
+    errEl.style.display = 'block';
+    return;
+  }
+  api('login', { email, password }).then(res => {
+    if (res.success) {
+      TOKEN = res.token;
+      localStorage.setItem('isra_token', TOKEN);
+      ME = res.employee;
+      enterApp();
+    } else {
+      errEl.textContent = res.message || 'Login fail ho gaya.';
+      errEl.style.display = 'block';
+    }
+  }).catch(() => {
+    errEl.textContent = 'Connection error — API_URL check karein.';
+    errEl.style.display = 'block';
+  });
+}
+
+function doLogout() {
+  api('logout', {}).finally(() => {
+    localStorage.removeItem('isra_token');
+    TOKEN = null; ME = null;
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+  });
+}
+
+/* ================= APP ENTRY ================= */
+function enterApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('topUserName').textContent = ME.Name;
+  document.getElementById('topUserRole').textContent = ME.Role;
+  document.getElementById('topAvatar').textContent = ME.Name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+  if (ME.Role !== 'SuperAdmin') {
+    document.getElementById('navCampuses').style.display = 'none';
+  }
+  loadCampuses().then(() => switchView('dashboard'));
+}
+
+// try silent resume on load
+window.addEventListener('load', () => {
+  if (!API_URL || API_URL.indexOf('PASTE_YOUR') !== -1) {
+    document.getElementById('loginError').textContent = 'config.js mein API_URL set nahi hai. SETUP_GUIDE.md follow karein.';
+    document.getElementById('loginError').style.display = 'block';
+    return;
+  }
+  if (TOKEN) {
+    api('getMe', {}).then(res => {
+      if (res.success) { ME = res.data; enterApp(); }
+      else { localStorage.removeItem('isra_token'); TOKEN = null; }
+    });
+  }
+});
+
+/* ================= NAV ================= */
+function switchView(view) {
+  document.querySelectorAll('.nav-item[data-view]').forEach(el => el.classList.toggle('active', el.dataset.view === view));
+  const titles = { dashboard: 'Dashboard', employees: 'Employees', campuses: 'Campuses', profile: 'My Profile' };
+  document.getElementById('viewTitle').textContent = titles[view];
+  const c = document.getElementById('content');
+  c.innerHTML = '<div class="loading">Loading…</div>';
+
+  if (view === 'dashboard') renderDashboard();
+  if (view === 'employees') renderEmployees();
+  if (view === 'campuses') renderCampuses();
+  if (view === 'profile') renderProfile();
+}
+
+/* ================= CAMPUSES (shared cache) ================= */
+function loadCampuses() {
+  return api('getCampuses', {}).then(res => {
+    if (res.success) CAMPUSES_CACHE = res.data;
+  });
+}
+function campusName(id) {
+  const c = CAMPUSES_CACHE.find(x => x.CampusID === id);
+  return c ? c.CampusName : (id || '—');
+}
+
+/* ================= DASHBOARD ================= */
+function renderDashboard() {
+  api('getEmployees', {}).then(res => {
+    const c = document.getElementById('content');
+    if (!res.success) { c.innerHTML = errBlock(res.message); return; }
+    const emps = res.data;
+    const active = emps.filter(e => e.Status === 'Active').length;
+    const byRole = {};
+    emps.forEach(e => byRole[e.Role] = (byRole[e.Role]||0)+1);
+
+    c.innerHTML = `
+      <div class="stat-grid">
+        <div class="stat-card"><div class="num">${emps.length}</div><div class="lbl">Total Employees</div></div>
+        <div class="stat-card"><div class="num">${active}</div><div class="lbl">Active</div></div>
+        <div class="stat-card"><div class="num">${CAMPUSES_CACHE.length}</div><div class="lbl">Campuses</div></div>
+        <div class="stat-card"><div class="num">${byRole['Teacher']||0}</div><div class="lbl">Teachers</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Welcome, ${ME.Name.split(' ')[0]}</h3></div>
+        <p style="color:var(--ink-soft);font-size:13.5px;line-height:1.6;margin:0;">
+          Aap <strong>${ME.Role}</strong> ke roop mein login hain${ME.CampusID ? ' — Campus: <strong>'+campusName(ME.CampusID)+'</strong>' : ''}.
+          Attendance, Leave Management aur Salary modules agle phases mein add honge.
+        </p>
+      </div>`;
+  });
+}
+
+/* ================= EMPLOYEES ================= */
+function renderEmployees() {
+  api('getEmployees', {}).then(res => {
+    const c = document.getElementById('content');
+    if (!res.success) { c.innerHTML = errBlock(res.message); return; }
+    const emps = res.data;
+    const canAdd = ['SuperAdmin','Director','Principal'].includes(ME.Role);
+    const canDelete = ['SuperAdmin','Director'].includes(ME.Role);
+
+    let rows = emps.map(e => `
+      <tr>
+        <td>${e.Name}</td>
+        <td>${e.Email}</td>
+        <td><span class="pill role">${e.Role}</span></td>
+        <td>${campusName(e.CampusID)}</td>
+        <td>${e.Designation||'—'}</td>
+        <td><span class="pill ${e.Status==='Active'?'active':'inactive'}">${e.Status}</span></td>
+        <td>
+          <button class="btn outline btn-sm" onclick='openViewProfile(${JSON.stringify(e)})'>View</button>
+          <button class="btn outline btn-sm" onclick='openEmployeeModal(${JSON.stringify(e)})'>Edit</button>
+          ${canDelete ? `<button class="btn danger btn-sm" onclick="removeEmployee('${e.EmployeeID}')">Deactivate</button>` : ''}
+        </td>
+      </tr>`).join('');
+
+    c.innerHTML = `
+      <div class="card">
+        <div class="card-head">
+          <h3>Employees (${emps.length})</h3>
+          ${canAdd ? `<button class="btn gold btn-sm" onclick="openEmployeeModal()">+ Add Employee</button>` : ''}
+        </div>
+        ${emps.length ? `<table><thead><tr>
+          <th>Name</th><th>Email</th><th>Role</th><th>Campus</th><th>Designation</th><th>Status</th><th></th>
+        </tr></thead><tbody>${rows}</tbody></table>` : `<div class="empty-state">Koi employee record nahi mila.</div>`}
+      </div>`;
+  });
+}
+
+function openViewProfile(e) {
+  document.getElementById('viewProfileName').textContent = e.Name;
+  const rows = [
+    ['Father / Husband Name', e.FatherHusbandName],
+    ['Date of Birth', e.DOB],
+    ['Gender', e.Gender],
+    ['CNIC', e.CNIC],
+    ['Blood Group', e.BloodGroup],
+    ['Permanent Address', e.PermanentAddress],
+    ['Qualification', e.Qualification],
+    ['Email', e.Email],
+    ['Phone', e.Phone],
+    ['Emergency Contact', e.EmergencyContactName ? (e.EmergencyContactName + ' — ' + (e.EmergencyContactPhone||'')) : ''],
+    ['Bank', e.BankName ? (e.BankName + ' — ' + (e.BankAccountNo||'')) : ''],
+    ['Designation', e.Designation],
+    ['Joining Date', e.JoiningDate],
+    ['Role', e.Role],
+    ['Campus', campusName(e.CampusID)],
+    ['Status', e.Status]
+  ];
+  document.getElementById('viewProfileBody').innerHTML = rows
+    .map(r => `<div class="profile-row"><span class="k">${r[0]}</span><span class="v">${r[1] || '—'}</span></div>`)
+    .join('');
+  document.getElementById('viewProfileModalBg').style.display = 'flex';
+}
+
+function openEmployeeModal(emp) {
+  const sel = document.getElementById('emCampus');
+  sel.innerHTML = CAMPUSES_CACHE.map(c => `<option value="${c.CampusID}">${c.CampusName}</option>`).join('');
+
+  document.getElementById('employeeModalTitle').textContent = emp ? 'Edit Employee' : 'Add Employee';
+  document.getElementById('emEmployeeID').value = emp ? emp.EmployeeID : '';
+  document.getElementById('emName').value = emp ? emp.Name : '';
+  document.getElementById('emFatherHusbandName').value = emp ? emp.FatherHusbandName : '';
+  document.getElementById('emDOB').value = emp && emp.DOB ? emp.DOB.split('T')[0] : '';
+  document.getElementById('emGender').value = emp ? emp.Gender : '';
+  document.getElementById('emCNIC').value = emp ? emp.CNIC : '';
+  document.getElementById('emBloodGroup').value = emp ? emp.BloodGroup : '';
+  document.getElementById('emPermanentAddress').value = emp ? emp.PermanentAddress : '';
+  document.getElementById('emQualification').value = emp ? emp.Qualification : '';
+  document.getElementById('emEmail').value = emp ? emp.Email : '';
+  document.getElementById('emPhone').value = emp ? emp.Phone : '';
+  document.getElementById('emEmergencyContactName').value = emp ? emp.EmergencyContactName : '';
+  document.getElementById('emEmergencyContactPhone').value = emp ? emp.EmergencyContactPhone : '';
+  document.getElementById('emBankName').value = emp ? emp.BankName : '';
+  document.getElementById('emBankAccountNo').value = emp ? emp.BankAccountNo : '';
+  document.getElementById('emDesignation').value = emp ? emp.Designation : '';
+  document.getElementById('emJoiningDate').value = emp && emp.JoiningDate ? emp.JoiningDate.split('T')[0] : '';
+  document.getElementById('emRole').value = emp ? emp.Role : 'Teacher';
+  document.getElementById('emCampus').value = emp ? emp.CampusID : (ME.CampusID || '');
+  document.getElementById('emEmail').disabled = !!emp;
+
+  // Principal restricted to Teacher role only
+  document.getElementById('emRole').disabled = (ME.Role === 'Principal');
+  document.getElementById('emCampus').disabled = (ME.Role === 'Principal');
+
+  document.getElementById('employeeModalBg').style.display = 'flex';
+}
+
+function saveEmployee() {
+  const id = document.getElementById('emEmployeeID').value;
+  const data = {
+    Name: document.getElementById('emName').value.trim(),
+    FatherHusbandName: document.getElementById('emFatherHusbandName').value.trim(),
+    DOB: document.getElementById('emDOB').value,
+    Gender: document.getElementById('emGender').value,
+    CNIC: document.getElementById('emCNIC').value.trim(),
+    BloodGroup: document.getElementById('emBloodGroup').value,
+    PermanentAddress: document.getElementById('emPermanentAddress').value.trim(),
+    Qualification: document.getElementById('emQualification').value.trim(),
+    Email: document.getElementById('emEmail').value.trim(),
+    Phone: document.getElementById('emPhone').value.trim(),
+    EmergencyContactName: document.getElementById('emEmergencyContactName').value.trim(),
+    EmergencyContactPhone: document.getElementById('emEmergencyContactPhone').value.trim(),
+    BankName: document.getElementById('emBankName').value.trim(),
+    BankAccountNo: document.getElementById('emBankAccountNo').value.trim(),
+    Designation: document.getElementById('emDesignation').value.trim(),
+    JoiningDate: document.getElementById('emJoiningDate').value,
+    Role: document.getElementById('emRole').value,
+    CampusID: document.getElementById('emCampus').value
+  };
+  if (!data.Name || !data.Email) { toast('Name aur Email zaroori hain.', 'error'); return; }
+
+  const action = id ? 'updateEmployee' : 'addEmployee';
+  if (id) data.EmployeeID = id;
+
+  api(action, { data }).then(res => {
+    if (res.success) {
+      toast(res.message || 'Saved.', 'success');
+      closeModal('employeeModalBg');
+      renderEmployees();
+    } else {
+      toast(res.message || 'Save fail ho gaya.', 'error');
+    }
+  });
+}
+
+function removeEmployee(id) {
+  if (!confirm('Is employee ko deactivate karna chahte hain?')) return;
+  api('deleteEmployee', { employeeId: id }).then(res => {
+    toast(res.message, res.success ? 'success' : 'error');
+    if (res.success) renderEmployees();
+  });
+}
+
+/* ================= CAMPUSES ================= */
+function renderCampuses() {
+  loadCampuses().then(() => {
+    const c = document.getElementById('content');
+    let rows = CAMPUSES_CACHE.map(cm => `
+      <tr>
+        <td>${cm.CampusName}</td>
+        <td>${cm.CampusType||'—'}</td>
+        <td>${cm.Address||'—'}</td>
+        <td>${cm.Latitude||'—'}, ${cm.Longitude||'—'}</td>
+        <td>${cm.RadiusMeters||'—'}m</td>
+        <td><span class="pill ${cm.Status==='Active'?'active':'inactive'}">${cm.Status}</span></td>
+        <td>
+          <button class="btn outline btn-sm" onclick='openCampusModal(${JSON.stringify(cm)})'>Edit</button>
+          <button class="btn danger btn-sm" onclick="removeCampus('${cm.CampusID}')">Deactivate</button>
+        </td>
+      </tr>`).join('');
+
+    c.innerHTML = `
+      <div class="card">
+        <div class="card-head">
+          <h3>Campuses (${CAMPUSES_CACHE.length})</h3>
+          <button class="btn gold btn-sm" onclick="openCampusModal()">+ Add Campus</button>
+        </div>
+        ${CAMPUSES_CACHE.length ? `<table><thead><tr>
+          <th>Name</th><th>Type</th><th>Address</th><th>Coordinates</th><th>Geo-fence</th><th>Status</th><th></th>
+        </tr></thead><tbody>${rows}</tbody></table>` : `<div class="empty-state">Koi campus add nahi hua.</div>`}
+      </div>`;
+  });
+}
+
+function openCampusModal(cm) {
+  document.getElementById('campusModalTitle').textContent = cm ? 'Edit Campus' : 'Add Campus';
+  document.getElementById('cmCampusID').value = cm ? cm.CampusID : '';
+  document.getElementById('cmName').value = cm ? cm.CampusName : '';
+  document.getElementById('cmType').value = cm ? cm.CampusType : '';
+  document.getElementById('cmAddress').value = cm ? cm.Address : '';
+  document.getElementById('cmLat').value = cm ? cm.Latitude : '';
+  document.getElementById('cmLng').value = cm ? cm.Longitude : '';
+  document.getElementById('cmRadius').value = cm ? cm.RadiusMeters : 100;
+  document.getElementById('campusModalBg').style.display = 'flex';
+}
+
+function saveCampus() {
+  const id = document.getElementById('cmCampusID').value;
+  const data = {
+    CampusName: document.getElementById('cmName').value.trim(),
+    CampusType: document.getElementById('cmType').value.trim(),
+    Address: document.getElementById('cmAddress').value.trim(),
+    Latitude: document.getElementById('cmLat').value,
+    Longitude: document.getElementById('cmLng').value,
+    RadiusMeters: document.getElementById('cmRadius').value
+  };
+  if (!data.CampusName) { toast('Campus name zaroori hai.', 'error'); return; }
+  if (id) data.CampusID = id;
+
+  api(id ? 'updateCampus' : 'addCampus', { data }).then(res => {
+    if (res.success) {
+      toast(res.message, 'success');
+      closeModal('campusModalBg');
+      renderCampuses();
+    } else {
+      toast(res.message, 'error');
+    }
+  });
+}
+
+function removeCampus(id) {
+  if (!confirm('Is campus ko deactivate karna chahte hain?')) return;
+  api('deleteCampus', { campusId: id }).then(res => {
+    toast(res.message, res.success ? 'success' : 'error');
+    if (res.success) renderCampuses();
+  });
+}
+
+/* ================= MY PROFILE ================= */
+function renderProfile() {
+  const c = document.getElementById('content');
+  c.innerHTML = `
+    <div class="card" style="max-width:520px;">
+      <div class="card-head"><h3>My Profile</h3></div>
+
+      <div class="section-label">Account (read-only)</div>
+      <div class="field-grid">
+        <div class="field"><label>Name</label><input value="${ME.Name}" disabled></div>
+        <div class="field"><label>Email</label><input value="${ME.Email}" disabled></div>
+        <div class="field"><label>Designation</label><input value="${ME.Designation||'—'}" disabled></div>
+        <div class="field"><label>Campus</label><input value="${campusName(ME.CampusID)}" disabled></div>
+      </div>
+
+      <div class="section-label">Personal Information</div>
+      <div class="field-grid">
+        <div class="field"><label>Father / Husband Name</label><input id="profFatherHusbandName" value="${ME.FatherHusbandName||''}"></div>
+        <div class="field"><label>Date of Birth</label><input id="profDOB" type="date" value="${ME.DOB ? ME.DOB.split('T')[0] : ''}"></div>
+        <div class="field"><label>Gender</label>
+          <select id="profGender">
+            <option value="">— Select —</option>
+            <option ${ME.Gender==='Male'?'selected':''}>Male</option>
+            <option ${ME.Gender==='Female'?'selected':''}>Female</option>
+          </select>
+        </div>
+        <div class="field"><label>Blood Group</label><input id="profBloodGroup" value="${ME.BloodGroup||''}"></div>
+        <div class="field" style="grid-column:1/-1;"><label>Permanent Address</label><input id="profPermanentAddress" value="${ME.PermanentAddress||''}"></div>
+        <div class="field" style="grid-column:1/-1;"><label>Qualification</label><input id="profQualification" value="${ME.Qualification||''}"></div>
+      </div>
+
+      <div class="section-label">Contact</div>
+      <div class="field-grid">
+        <div class="field"><label>Phone</label><input id="profPhone" value="${ME.Phone||''}"></div>
+      </div>
+
+      <div class="section-label">Emergency Contact</div>
+      <div class="field-grid">
+        <div class="field"><label>Name</label><input id="profEmergencyContactName" value="${ME.EmergencyContactName||''}"></div>
+        <div class="field"><label>Phone</label><input id="profEmergencyContactPhone" value="${ME.EmergencyContactPhone||''}"></div>
+      </div>
+
+      <div class="section-label">Bank Details (for Salary)</div>
+      <div class="field-grid">
+        <div class="field"><label>Bank Name</label><input id="profBankName" value="${ME.BankName||''}"></div>
+        <div class="field"><label>Account No.</label><input id="profBankAccountNo" value="${ME.BankAccountNo||''}"></div>
+      </div>
+
+      <div class="section-label">Security</div>
+      <div class="field"><label>New Password (optional)</label><input id="profPassword" type="password" placeholder="Leave blank to keep current"></div>
+
+      <button class="btn gold" onclick="saveProfile()" style="margin-top:6px;">Update Profile</button>
+    </div>`;
+}
+
+function saveProfile() {
+  const data = {
+    EmployeeID: ME.EmployeeID,
+    Phone: document.getElementById('profPhone').value,
+    FatherHusbandName: document.getElementById('profFatherHusbandName').value,
+    DOB: document.getElementById('profDOB').value,
+    Gender: document.getElementById('profGender').value,
+    BloodGroup: document.getElementById('profBloodGroup').value,
+    PermanentAddress: document.getElementById('profPermanentAddress').value,
+    Qualification: document.getElementById('profQualification').value,
+    EmergencyContactName: document.getElementById('profEmergencyContactName').value,
+    EmergencyContactPhone: document.getElementById('profEmergencyContactPhone').value,
+    BankName: document.getElementById('profBankName').value,
+    BankAccountNo: document.getElementById('profBankAccountNo').value
+  };
+  const pw = document.getElementById('profPassword').value;
+  if (pw) data.NewPassword = pw;
+  api('updateEmployee', { data }).then(res => {
+    toast(res.message, res.success ? 'success' : 'error');
+    if (res.success) { Object.assign(ME, data); }
+  });
+}
+
+/* ================= UTIL ================= */
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function errBlock(msg) { return `<div class="empty-state">${msg || 'Kuch ghalat ho gaya.'}</div>`; }
+</script>
+</body>
+</html>
