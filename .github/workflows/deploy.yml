@@ -1,0 +1,55 @@
+# ================================================================
+#  Isra School Portal — GitHub Actions Auto Deploy
+#
+#  Jab bhi aap GitHub pe koi bhi file edit/save karein,
+#  yeh automatically:
+#    1. npm install karega
+#    2. npm run build karega
+#    3. GitHub Pages pe deploy karega
+#
+#  Aapko apne PC pe kuch bhi nahi karna!
+# ================================================================
+
+name: Build and Deploy Portal
+
+on:
+  push:
+    branches:
+      - main        # main branch pe push hone pe auto run hoga
+
+permissions:
+  contents: write   # GitHub Pages deploy ke liye zaroori
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    name: Build React app and deploy to GitHub Pages
+
+    steps:
+      # Step 1: Code checkout
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Node.js setup
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # Step 3: Dependencies install
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Build
+      - name: Build React app
+        run: npm run build
+
+      # Step 5: Deploy dist/ folder to gh-pages branch
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          commit_message: "Auto deploy — ${{ github.event.head_commit.message }}"
