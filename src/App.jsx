@@ -33,7 +33,7 @@ function ProtectedApp() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/schoolmanagment">
         <Routes>
           <Route path="/login" element={<LoginWrapper />} />
           <Route path="/*" element={<ProtectedApp />} />
