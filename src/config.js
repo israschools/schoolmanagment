@@ -12,7 +12,7 @@
 
 const APPS_SCRIPT_URL = "";
 // Example:
-// const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyp3mv2HeF2sPOnsWSIri271LeKs5HK-XxspXEiYaKIXQ26EAYh9-gXwYI5vfsNCey2/exec";
+// const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxx/exec";
 
 // ── Sheet names (Google Sheet mein same naam rakhen) ─────────
 export const SHEET_NAMES = {
