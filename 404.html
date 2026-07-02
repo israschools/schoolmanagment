@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Isra School Portal</title>
+  <script>
+    var base = '/schoolmanagment';
+    var path = window.location.pathname.replace(base, '') || '/';
+    sessionStorage.setItem('redirect', path);
+    window.location.replace(base + '/');
+  </script>
+</head>
+<body>Redirecting...</body>
+</html>
