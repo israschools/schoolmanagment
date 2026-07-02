@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, CalendarCheck, MapPinned, Building2,
   Wallet, BarChart3, Bell, Search, LogOut, ChevronDown, ShieldCheck,
@@ -42,7 +42,7 @@ const navByRole = {
   ],
 };
 
-export default function Layout() {
+export default function Layout({ children }) {
   const { role, user, setAuthed } = useAuth();
   const [userMenu, setUserMenu] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
@@ -139,7 +139,7 @@ export default function Layout() {
         </header>
 
         <main className="flex-1 overflow-y-auto p-6">
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>
