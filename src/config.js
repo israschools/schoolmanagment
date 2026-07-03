@@ -10,7 +10,7 @@
 //   5. File save karein → app automatic real data use karega
 // ============================================================
 
-const APPS_SCRIPT_URL = "";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3pynmCYba0h109HYTdpKPKNe-DvDbh6v8hf0kQ4gSBf4PAD6MIZQmSe5zB01XAct7/exec";
 // Example:
 // const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3pynmCYba0h109HYTdpKPKNe-DvDbh6v8hf0kQ4gSBf4PAD6MIZQmSe5zB01XAct7/exec";
 
